@@ -1,0 +1,53 @@
+clc
+global temp
+
+%%%%%%%%%%%%%%%%
+%addpath('C:\Users\Sana\Desktop\HMM-20181218T134450Z-001\HMM');
+fileID = fopen('C:\Users\Afnan\Desktop\spokenn\result.txt','w');
+fprintf(fileID,'-------------------------------------------------------------- \r\n');
+
+fprintf(fileID,'%6s %17s %20s\r\n','id');
+
+directory = dir('C:\Users\Afnan\Desktop\spokenn\data\test\*.wav')
+for j=1:length(directory)
+ fname = directory(j).name;
+[s,fs] = audioread(['C:\Users\Afnan\Desktop\spokenn\data\test\',fname]);
+x = Fast_MFCC(s,fs);
+
+loglikEgy = (mhmm_logprob(x', priorEgy, transmatEgy, muEgy, SigmaEgy, mixmatEgy))
+loglikGLF = (mhmm_logprob(x', priorGLF, transmatGLF, muGLF, SigmaGLF, mixmatGLF))
+loglikLAV = (mhmm_logprob(x', priorLAV, transmatLAV, muLAV, SigmaLAV, mixmatLAV))
+loglikMSA = (mhmm_logprob(x', priorMSA, transmatMSA, muMSA, SigmaMSA, mixmatMSA))
+loglikNOR = (mhmm_logprob(x',priorNOR, transmatNOR, muNOR, SigmaNOR, mixmatNOR))
+ 
+
+end
+v=[loglikEgy,loglikGLF,loglikLAV,loglikMSA,loglikNOR];
+
+mx=v(1);
+for p=2:numel(v)
+  if v(p)>mx
+   mx=v(p);
+  end
+end
+if mx==loglikEgy
+  answer=' EGY';  
+  elseif mx==loglikGLF
+  answer=' GLF';  
+  elseif mx==loglikLAV
+  answer=' LAV'; 
+  elseif mx==loglikMSA
+  answer=' MSA'; 
+  elseif mx==loglikNOR
+  answer=' NOR'; 
+end
+
+fprintf(fileID,'%6s %18f %d%6s \r\n\r',fname,mx,answer);
+
+    
+     
+
+ fclose(fileID);
+  
+ 
+ 
